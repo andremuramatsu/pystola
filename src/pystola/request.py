@@ -34,7 +34,7 @@ class request():
         if self.session is None:
             self.init_session()
 
-        self.r.p('CFG: %s' % cfg)
+        self.r.p('ACTION: %s' % cfg)
 
         frmdata = self.__frmdata
         if 'data' in cfg and len(cfg['data']) > 0:

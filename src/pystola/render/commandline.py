@@ -74,6 +74,7 @@ class commandline(Abstract):
             print('%s%s%s%s%s' %(fgc, bgc, stl, tabulate([[k,v] for k,v in header_dict.items()]), style.RESET))
 
     def http_code(self, code):
+        is_error=False
         if int(code) >= 200:
             fgc=fore.WHITE
             bgc=back.GREEN
@@ -88,7 +89,11 @@ class commandline(Abstract):
             fgc=fore.WHITE
             bgc=back.RED
             stl=style.BOLD
+            is_error=True
 
         if self.level >= 0:
             print('%s%s%sHTTP CODE: %d%s' %(fgc, bgc, stl, code, style.RESET))
+
+        if is_error:
+            raise AssertionError("Request error")
 

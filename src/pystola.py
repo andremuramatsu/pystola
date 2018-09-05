@@ -11,7 +11,6 @@ class pystola():
         self.r = render
 
     def run(self, args):
-
         if (args.quiet):
             self.r.set_verbosity_level(-1)
         else:
