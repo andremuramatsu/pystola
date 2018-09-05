@@ -9,10 +9,11 @@ class commandline(Abstract):
         pass
 
     def p(self, msg):
-        fgc=fore.WHITE
-        bgc=''
-        stl=''
-        print('%s%s%s%s%s' % (fgc, bgc, stl, msg, style.RESET))
+        if self.level >= 0:
+            fgc=fore.WHITE
+            bgc=''
+            stl=''
+            print('%s%s%s%s%s' % (fgc, bgc, stl, msg, style.RESET))
 
     def d(self, msg):
         if self.level > 1:
@@ -22,23 +23,26 @@ class commandline(Abstract):
             print('%s%s%sDEBUG: %s%s' % (fgc, bgc, stl, msg, style.RESET))
 
     def w(self, msg):
-        fgc=fore.YELLOW
-        bgc=''
-        stl=style.BOLD
-        print('%s%s%sWARNING: %s%s' % (fgc, bgc, stl, msg, style.RESET))
+        if self.level >= 0:
+            fgc=fore.YELLOW
+            bgc=''
+            stl=style.BOLD
+            print('%s%s%sWARNING: %s%s' % (fgc, bgc, stl, msg, style.RESET))
 
     def e(self, msg, color='red'):
-        fgc=fore.WHITE
-        bgc=back.RED
-        stl=style.BOLD
-        print('%s%s%sERROR: %s%s' % (fgc, bgc, stl, msg, style.RESET))
+        if self.level >= 0:
+            fgc=fore.WHITE
+            bgc=back.RED
+            stl=style.BOLD
+            print('%s%s%sERROR: %s%s' % (fgc, bgc, stl, msg, style.RESET))
         raise AssertionError("An assertion error has occurred")
 
     def content_type(self, msg):
-        fgc=fg(11)
-        bgc=''
-        stl=''
-        print('%s%s%sContent Type: %s%s' % (fgc, bgc, stl, msg, style.RESET))
+        if self.level >= 0:
+            fgc=fg(11)
+            bgc=''
+            stl=''
+            print('%s%s%sContent Type: %s%s' % (fgc, bgc, stl, msg, style.RESET))
 
     def body(self, msg):
         if self.level > 2:
@@ -46,6 +50,21 @@ class commandline(Abstract):
             bgc=''
             stl=''
             print('%s%s%s%s%s' % (fgc, bgc, stl, msg, style.RESET))
+
+    def suite_description(self, cfg):
+        if self.level >= 0:
+            fgc=fg(7)
+            bgc=bg(4)
+            stl=style.BOLD
+
+            if 'name' in cfg:
+                print('%s%s%s<=== %s ===>%s' % (fgc, bgc, stl, cfg['name'], style.RESET))
+
+            bgc=bg(30)
+            stl=''
+
+            if 'description' in cfg:
+                print('%s%s%s  %s%s' % (fgc, bgc, stl, cfg['description'], style.RESET))
 
     def header(self, header_dict):
         if self.level > 1:
@@ -70,5 +89,6 @@ class commandline(Abstract):
             bgc=back.RED
             stl=style.BOLD
 
-        print('%s%s%sHTTP CODE: %d%s' %(fgc, bgc, stl, code, style.RESET))
+        if self.level >= 0:
+            print('%s%s%sHTTP CODE: %d%s' %(fgc, bgc, stl, code, style.RESET))
 
