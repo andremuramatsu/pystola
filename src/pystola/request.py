@@ -27,6 +27,8 @@ class request():
     def run(self, cfg):
         self.__run(cfg)
         self.__frmdata = self.__parse_fields()
+        self.__parse_unexpect(cfg)
+        self.__parse_expect(cfg)
 
     def __run(self, cfg):
         if self.session is None:
@@ -49,6 +51,24 @@ class request():
         self.r.header(self.resp.headers)
         self.r.body(self.resp.text)
 
+    def __parse_expect(self, cfg):
+        if 'expect' not in cfg:
+            return
+
+        d = pq(self.resp.text)
+        for msk in cfg['expect']:
+            if len(d(msk)) == 0:
+                self.r.e('Desired pattern not found: %s' % msk)
+
+    def __parse_unexpect(self, cfg):
+        if 'unexpect' not in cfg:
+            return
+
+        d = pq(self.resp.text)
+        for msk in cfg['unexpect']:
+            if len(d(msk)):
+                self.r.e('Undesired pattern matched: %s' % msk)
+
     def __parse_fields(self):
         d = pq(self.resp.text)
         fields = {}
@@ -57,15 +77,4 @@ class request():
                 fields[fd.name] = fd.value
 
         return fields
-
-    def __apply_frmdata(self, cfg, lst):
-        if 'data' not in cfg:
-            return lst
-
-        for param in cfg['data']:
-            for fd in filter(lambda lsti: lsti['name'] == param, lst):
-                fd['value'] = cfg['data'][param]
-
-        return lst
-
 

@@ -41,9 +41,12 @@ class suite():
         with open(fpath) as fh:
             suitestr = fh.read()
 
-        suite = json.loads(suitestr)
-        _clst = []
+        try:
+            suite = json.loads(suitestr)
+        except:
+            self.r.e('Test suite doesn\'t looks like a regular JSON file: %s' % fpath)
 
+        _clst = []
         if 'actions' not in suite:
             return []
 

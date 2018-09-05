@@ -9,11 +9,10 @@ class commandline(Abstract):
         pass
 
     def p(self, msg):
-        if self.level > 0:
-            fgc=fore.WHITE
-            bgc=''
-            stl=''
-            print('%s%s%sNOTICE: %s%s' % (fgc, bgc, stl, msg, style.RESET))
+        fgc=fore.WHITE
+        bgc=''
+        stl=''
+        print('%s%s%s%s%s' % (fgc, bgc, stl, msg, style.RESET))
 
     def d(self, msg):
         if self.level > 1:
@@ -33,6 +32,7 @@ class commandline(Abstract):
         bgc=back.RED
         stl=style.BOLD
         print('%s%s%sERROR: %s%s' % (fgc, bgc, stl, msg, style.RESET))
+        raise AssertionError("An assertion error has occurred")
 
     def content_type(self, msg):
         fgc=fg(11)
