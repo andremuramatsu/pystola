@@ -35,7 +35,7 @@ class commandline(Abstract):
             bgc=back.RED
             stl=style.BOLD
             print('%s%s%sERROR: %s%s' % (fgc, bgc, stl, msg, style.RESET))
-        raise AssertionError("An assertion error has occurred")
+        raise Exception("An assertion error has occurred: %s" % msg)
 
     def content_type(self, msg):
         if self.level >= 0:
@@ -46,7 +46,7 @@ class commandline(Abstract):
 
     def body(self, msg):
         if self.level > 2:
-            fgc=fg(4)
+            fgc=fg(6)
             bgc=''
             stl=''
             print('%s%s%s%s%s' % (fgc, bgc, stl, msg, style.RESET))
@@ -95,5 +95,5 @@ class commandline(Abstract):
             print('%s%s%sHTTP CODE: %d%s' %(fgc, bgc, stl, code, style.RESET))
 
         if is_error:
-            raise AssertionError("Request error")
+            raise Exception("Request error")
 

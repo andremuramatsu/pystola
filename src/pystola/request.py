@@ -32,18 +32,20 @@ class request():
 
     def __run(self, cfg):
         if self.session is None:
+            self.r.w('Session initialized')
             self.init_session()
 
         self.r.p('ACTION: %s' % cfg)
-
-        frmdata = self.__frmdata
-        if 'data' in cfg and len(cfg['data']) > 0:
-            frmdata.update(cfg['data'])
-
         if 'post' in cfg:
+            frmdata = self.__frmdata
+            if 'data' in cfg and len(cfg['data']) > 0:
+                frmdata.update(cfg['data'])
             self.resp = self.session.post(cfg['post'], data=frmdata, verify=False)
 
         elif 'get' in cfg:
+            frmdata = []
+            if 'data' in cfg:
+                frmdata = cfg['data']
             self.resp = self.session.get(cfg['get'], data=frmdata, verify=False)
 
         self.r.content_type(self.resp.headers['Content-Type'])
