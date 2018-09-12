@@ -1,0 +1,10 @@
+Package: pystola
+Architecture: amd64
+Version: 1.0.0-1
+Depends: python3
+Source: pystola
+Section: python
+Priority: optional
+Maintainer: muramatsu@outlook.com
+Homepage: https://github.com/andremuramatsu
+Description: Simple HTTP Test Suite
