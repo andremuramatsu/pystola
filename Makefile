@@ -21,4 +21,5 @@ builddeb:
 	@mkdir -p $(DESTDIR)
 	pyinstaller -D -s -y --clean ./src/$(PROJECT).py
 	cp ./dist/$(PROJECT)/* $(DESTDIR)/ -Rv
+	cp ./lib/vnu $(DESTDIR)/ -Rv
 	fakeroot dpkg-deb -b $(BUILDDIR) $(PROJECT)_$(VERSION)-$(REVISION)_$(ARCHITECTURE).deb

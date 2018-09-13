@@ -1,6 +1,7 @@
 # vim: set fileencoding=utf8 :
 
 import requests
+from Pystola.libs.vnu import vnu
 from pyquery import PyQuery as pq
 
 class request():
@@ -11,8 +12,9 @@ class request():
     __frmdata = {}
     __fdqrylst = ['input', 'select', 'textarea']
 
-    def __init__(self, render):
+    def __init__(self, render, args):
         self.r = render
+        self.args = args
 
     def get_response(self):
         return self.resp
@@ -27,10 +29,12 @@ class request():
         self.session = requests.Session()
 
     def run(self, cfg):
+        ret = {}
         self.__run(cfg)
         self.__frmdata = self.__parse_fields()
         self.__parse_unexpect(cfg)
         self.__parse_expect(cfg)
+        ret['html_check'] = self.__run_vnu()
 
     def __run(self, cfg):
         if self.session is None:
@@ -54,6 +58,16 @@ class request():
         self.r.http_code(self.resp.status_code)
         self.r.header(self.resp.headers)
         self.r.body(self.resp.text)
+
+
+    def __run_vnu(self):
+        vnur=[]
+        if self.args.check_html:
+            eng = vnu(self.args.lib_dir)
+            vnur = eng.validate_html(self.resp.text)
+            self.r.vnu(vnur)
+
+        return vnur
 
     def __parse_expect(self, cfg):
         if 'expect' not in cfg:

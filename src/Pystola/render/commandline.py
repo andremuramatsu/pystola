@@ -98,3 +98,9 @@ class commandline(Abstract):
         if is_error:
             raise Exception("Request error")
 
+    def vnu(self, report):
+        if self.level > 2:
+            fgc=fg(9)
+            bgc=''
+            stl=''
+            print('%s%s%s%s%s' % (fgc, bgc, stl, report, style.RESET))

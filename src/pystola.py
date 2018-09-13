@@ -4,6 +4,7 @@
 import sys
 import argparse
 import json
+from syslog import syslog
 from Pystola.suite import suite
 from Pystola.render.commandline import commandline
 from Pystola.request import request
@@ -30,7 +31,7 @@ class pystola():
             t_det=None
             dt_ini=str(datetime.now())
             try:
-                req = request(self.r)
+                req = request(self.r, args)
                 tsuite = suite(self.r)
                 cfg = tsuite.parse(tsuite_path)
 
@@ -40,6 +41,7 @@ class pystola():
 
             except Exception as e:
                 t_det=str(e)
+                syslog(t_det)
                 success=False
                 pass
 
@@ -71,7 +73,15 @@ class pystola_cmd(pystola):
         argp.add_argument('file', action='store', nargs='+', help='Test suite file')
         argp.add_argument('-v', '--verbose', action='count', required=False, help='Increase verbose')
         argp.add_argument('-r', '--result-file', action='store', required=False, help='Target to JSON result')
+        argp.add_argument('-R', '--recursive', action='store_true', required=False, 
+                help='Parse the document looking up for inner requests')
+        argp.add_argument('--check-html', action='store_true', required=False, 
+                help='Validate HTML documents using Nu HTML Checker')
+        argp.add_argument('--check-css', action='store_true', required=False, 
+                help='Validate CSS documents using Nu HTML Checker')
         argp.add_argument('-q', '--quiet', action='store_true', required=False, help='Do not print any message')
+        argp.add_argument('--lib-dir', action='store', required=False, help='Pystola third party libs dir',
+                default='/opt/pystola/')
         args = argp.parse_args()
 
         my_pystola = pystola(commandline())
