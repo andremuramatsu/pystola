@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
+# vim: set fileencoding=utf8 :
 
 import sys
 import argparse
 import json
-from pystola.suite import suite
-from pystola.render.commandline import commandline
-from pystola.request import request
+from Pystola.suite import suite
+from Pystola.render.commandline import commandline
+from Pystola.request import request
 from datetime import datetime
 
 class pystola():
@@ -62,7 +63,6 @@ class pystola():
                     'detail': t_det})
                 lfh.write(json.dumps(result))
                 lfh.flush()
-
 
 
 class pystola_cmd(pystola):
