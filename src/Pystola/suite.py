@@ -1,3 +1,4 @@
+# vim: set fileencoding=utf8 :
 import os
 import json
 import string

@@ -1,3 +1,4 @@
+# vim: set fileencoding=utf8 :
 from abc import ABCMeta, abstractmethod
 
 class Abstract:

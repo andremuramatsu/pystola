@@ -1,4 +1,5 @@
-from pystola.render.Abstract import Abstract
+# vim: set fileencoding=utf8 :
+from Pystola.render.Abstract import Abstract
 from colored import fore, back, style, fg, bg
 from tabulate import tabulate
 

@@ -1,3 +1,5 @@
+# vim: set fileencoding=utf8 :
+
 import requests
 from pyquery import PyQuery as pq
 
