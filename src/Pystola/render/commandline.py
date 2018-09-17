@@ -1,4 +1,5 @@
 # vim: set fileencoding=utf8 :
+from Pystola.PystolaException import PystolaException
 from Pystola.render.Abstract import Abstract
 from colored import fore, back, style, fg, bg
 from tabulate import tabulate
@@ -36,7 +37,8 @@ class commandline(Abstract):
             bgc=back.RED
             stl=style.BOLD
             print('%s%s%sERROR: %s%s' % (fgc, bgc, stl, msg, style.RESET))
-        raise Exception("An assertion error has occurred: %s" % msg)
+
+        raise PystolaException(msg)
 
     def content_type(self, msg):
         if self.level >= 0:
@@ -96,7 +98,7 @@ class commandline(Abstract):
             print('%s%s%sHTTP CODE: %d%s' %(fgc, bgc, stl, code, style.RESET))
 
         if is_error:
-            raise Exception("Request error")
+            self.e('Request error')
 
     def vnu(self, report):
         if self.level > 2:

@@ -2,6 +2,7 @@
 
 import requests
 from Pystola.libs.vnu import vnu
+from Pystola.PystolaException import PystolaException
 from pyquery import PyQuery as pq
 
 class request():
@@ -29,12 +30,25 @@ class request():
         self.session = requests.Session()
 
     def run(self, cfg):
-        ret = {}
-        self.__run(cfg)
-        self.__frmdata = self.__parse_fields()
-        self.__parse_unexpect(cfg)
-        self.__parse_expect(cfg)
-        ret['html_check'] = self.__run_vnu()
+        ret = {'html_check': None, 'error': False, 'detail': 'Success'}
+        try:
+            self.__run(cfg)
+            self.__frmdata = self.__parse_fields()
+            self.__parse_unexpect(cfg)
+            self.__parse_expect(cfg)
+            if self.args.check_html is True:
+                ret['html_check'] = self.__run_vnu()
+
+        except PystolaException as e:
+            ret['error'] = True
+            ret['detail'] = str(e)
+
+        except Exception as e:
+            ret['error'] = True
+            ret['detail'] = str(e)
+            self.r.e(ret['detail'])
+
+        return (ret, ret['error'], ret['detail'])
 
     def __run(self, cfg):
         if self.session is None:
@@ -61,12 +75,9 @@ class request():
 
 
     def __run_vnu(self):
-        vnur=[]
-        if self.args.check_html:
-            eng = vnu(self.args.lib_dir)
-            vnur = eng.validate_html(self.resp.text)
-            self.r.vnu(vnur)
-
+        eng = vnu(self.args.lib_dir)
+        vnur = eng.validate_html(self.resp.text)
+        self.r.vnu(vnur)
         return vnur
 
     def __parse_expect(self, cfg):

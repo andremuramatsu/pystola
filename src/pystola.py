@@ -5,10 +5,10 @@ import sys
 import argparse
 import json
 from syslog import syslog
+from Pystola.PystolaException import PystolaException
 from Pystola.suite import suite
 from Pystola.render.commandline import commandline
 from Pystola.request import request
-from datetime import datetime
 
 class pystola():
 
@@ -22,49 +22,35 @@ class pystola():
             self.r.set_verbosity_level(args.verbose)
 
         lfh = None
-        result = []
         if args.result_file:
-            lfh = open(args.result_file, 'w')
+            lfh = open(args.result_file, 'w+')
 
+        results = []
         for tsuite_path in args.file:
-            success=True
-            t_det=None
-            dt_ini=str(datetime.now())
-            try:
-                req = request(self.r, args)
-                tsuite = suite(self.r)
-                cfg = tsuite.parse(tsuite_path)
+            # send server request
+            req = request(self.r, args)
 
-                self.r.suite_description(cfg)
-                for act in cfg['actions']:
-                    req.run(act)
+            # build test suite
+            tsuite = suite(self.r)
+            cfg = None
+            cfg = tsuite.parse(tsuite_path)
 
-            except Exception as e:
-                t_det=str(e)
-                syslog(t_det)
-                success=False
-                pass
+            # print suite description
+            self.r.suite_description(cfg)
 
-            if lfh is not None:
-                lfh.seek(0)
-                cfg_name = None
-                if 'name' in cfg:
-                    cfg_name = cfg['name']
+            # running suite actions
+            for act in cfg['actions']:
+                (result, has_error, error_desc) = req.run(act)
+                act['result'] = result
+                if has_error: 
+                    break
 
-                cfg_desc = None
-                if 'description' in cfg:
-                    cfg_desc = cfg['description']
+            results.append(cfg)
 
-                result.append({
-                    'suite': tsuite_path, 
-                    'success': success, 
-                    't_start': dt_ini,
-                    't_end': str(datetime.now()),
-                    'name': cfg_name,
-                    'description': cfg_desc,
-                    'detail': t_det})
-                lfh.write(json.dumps(result))
-                lfh.flush()
+        if args.result_file:
+            with open(args.result_file, 'w') as fh:
+                fh.write(json.dumps(results))
+
 
 
 class pystola_cmd(pystola):
@@ -72,7 +58,7 @@ class pystola_cmd(pystola):
         argp = argparse.ArgumentParser(description='Command line arguments')
         argp.add_argument('file', action='store', nargs='+', help='Test suite file')
         argp.add_argument('-v', '--verbose', action='count', required=False, help='Increase verbose')
-        argp.add_argument('-r', '--result-file', action='store', required=False, help='Target to JSON result')
+        argp.add_argument('-r', '--result-file', action='store', required=False, help='Write result as JSON file')
         argp.add_argument('-R', '--recursive', action='store_true', required=False, 
                 help='Parse the document looking up for inner requests')
         argp.add_argument('--check-html', action='store_true', required=False, 
@@ -90,7 +76,7 @@ class pystola_cmd(pystola):
 if __name__ == '__main__':
     try:
         pystola_cmd.main()
-    except:
-        print('An error occurred')
+    except Exception as e:
+        print('An error occurred: %s' % e)
         sys.exit(1)
 

@@ -33,10 +33,10 @@ class suite():
 
     def __load(self, fpath):
         if os.path.isfile(fpath) is False:
-            raise FileNotFoundError('File %s not found' % fpath)
+            self.r.e('File %s not found' % fpath)
 
         if os.access(fpath, os.R_OK) is False:
-            raise PermissionError('Forbidden file %s' % fpath)
+            self.r.e('Forbidden file %s' % fpath)
 
         suitestr = None
         with open(fpath) as fh:
