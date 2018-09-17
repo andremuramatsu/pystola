@@ -1,6 +1,8 @@
 # vim: set fileencoding=utf8 :
 
 import requests
+import sys
+from urllib.parse import urlparse, urljoin
 from Pystola.libs.vnu import vnu
 from Pystola.PystolaException import PystolaException
 from pyquery import PyQuery as pq
@@ -30,7 +32,7 @@ class request():
         self.session = requests.Session()
 
     def run(self, cfg):
-        ret = {'html_check': None, 'error': False, 'detail': 'Success'}
+        ret = {'html_check': None, 'error': False, 'detail': 'Success', 'recursive': None}
         try:
             self.__run(cfg)
             self.__frmdata = self.__parse_fields()
@@ -38,6 +40,9 @@ class request():
             self.__parse_expect(cfg)
             if self.args.check_html is True:
                 ret['html_check'] = self.__run_vnu()
+
+            if self.args.recursive is True:
+                ret['recursive'] = self.__run_recursive()
 
         except PystolaException as e:
             ret['error'] = True
@@ -73,6 +78,34 @@ class request():
         self.r.header(self.resp.headers)
         self.r.body(self.resp.text)
 
+    def __run_recursive(self):
+        urlp = self.resp.url
+        d = pq(self.resp.text)
+        result = []
+        for obj in d('img'):
+            if 'src' in obj.attrib:
+                url = obj.attrib['src']
+                result.append(self.__run_isolated_url(urljoin(urlp, url)))
+
+        for obj in d('link'):
+            if 'href' in obj.attrib:
+                url = obj.attrib['href']
+                result.append(self.__run_isolated_url(urljoin(urlp, url)))
+
+        for obj in d('script'):
+            if 'src' in obj.attrib:
+                url = 'x' +  obj.attrib['src'] 
+                result.append(self.__run_isolated_url(urljoin(urlp, url)))
+
+        return result
+
+    def __run_isolated_url(self, url):
+        self.r.p('INNER REQUEST: %s' % url)
+        req = self.session.get(url, verify=False)
+        ret = {'url': url, 'http_code': req.status_code, 'mime': req.headers['Content-Type']}
+        self.r.http_code(ret['http_code'])
+        self.r.content_type(ret['mime'])
+        return ret
 
     def __run_vnu(self):
         eng = vnu(self.args.lib_dir)
