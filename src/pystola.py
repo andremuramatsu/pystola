@@ -4,6 +4,7 @@
 import sys
 import argparse
 import json
+from datetime import datetime
 from syslog import syslog
 from Pystola.PystolaException import PystolaException
 from Pystola.suite import suite
@@ -26,6 +27,7 @@ class pystola():
             lfh = open(args.result_file, 'w+')
 
         results = []
+        # building cfg list
         for tsuite_path in args.file:
             # send server request
             req = request(self.r, args)
@@ -34,6 +36,14 @@ class pystola():
             tsuite = suite(self.r)
             cfg = None
             cfg = tsuite.parse(tsuite_path)
+            cfg['source'] = tsuite_path
+            results.append(cfg)
+
+        self.__save(results, args)
+
+        # running list
+        for cfg in results:
+            cfg['dt_start'] = str(datetime.now())
 
             # print suite description
             self.r.suite_description(cfg)
@@ -45,12 +55,14 @@ class pystola():
                 if has_error: 
                     break
 
-            results.append(cfg)
+            cfg['dt_end'] = str(datetime.now())
 
+        self.__save(results, args)
+
+    def __save(self, results, args):
         if args.result_file:
             with open(args.result_file, 'w') as fh:
                 fh.write(json.dumps(results))
-
 
 
 class pystola_cmd(pystola):
